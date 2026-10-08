@@ -82,6 +82,18 @@ Invoice workflows couldn't read line items. Rollup fields couldn't filter on dat
 
 None of these were dramatic. That's the point. A confident, plausible, slightly wrong sentence is the most expensive kind, because nobody double-checks it.
 
+## What I changed before the next client
+
+When the engagement ended, I audited my own Claude setup the way I'd audit a customer's. It was built for one client.
+
+- **The client was visible everywhere.** Their voice Skill and notes sat at the account level, where any future client's work could see them. Now each client gets its own Project, account-level Skills hold methods only, and everything about a client is deleted when the engagement ends. That's [`client-engagement-ops`](../skills/client-engagement-ops/SKILL.md).
+- **One portal at a time.** HubSpot's connector holds one portal per Claude account, and I was about to offer two builds at once. Every session and scheduled run now checks the portal ID first and stops on a mismatch.
+- **Rules lived in prompts.** "Never send" and "read-only" now live in each connector's tool settings, because an overnight run has nobody there to ask.
+- **History that never existed.** Two scheduled tasks saved their history inside a run that starts empty every time. State now lives in Project docs.
+- **The audit I sell wasn't runnable.** It existed as a sales page and a sample. Now it's a Skill: [`hubspot-revenue-audit`](../skills/hubspot-revenue-audit/SKILL.md).
+
+Before I saved the new Skills, a separate Claude agent reviewed them cold. It found that the audit's read-only promise depended on Claude behaving, and that my offboarding timing contradicted my own privacy terms. Both are fixed.
+
 ## What it taught me about customer success
 
 I spent six months as Claude's customer, with my own client depending on the output. What made adoption stick wasn't a clever prompt. It was the same things a customer success manager builds for a customer's team:
@@ -91,6 +103,7 @@ I spent six months as Claude's customer, with my own client depending on the out
 - **The expert's method turned into Skills,** so quality doesn't depend on one person.
 - **Work that runs on a schedule,** so usage grows without anyone remembering to open a chat.
 - **Value reported honestly,** labeled and measured, so leaders keep paying for it.
+- **A review of your own setup after every customer,** so the lessons land in the method and the customer's data doesn't stay behind.
 
 That's the playbook in [`playbook/adoption-playbook.md`](../playbook/adoption-playbook.md).
 
