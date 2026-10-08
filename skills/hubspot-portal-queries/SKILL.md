@@ -1,9 +1,9 @@
 ---
 name: hubspot-portal-queries
-description: Pull, verify and label HubSpot data before any number is used. Use when asked for figures, when a saved number is treated as current, or before building a segment or flow.
+description: Pull, verify and label HubSpot data before any number is used, starting with a check that the right portal is connected. Use when asked for figures or before building a segment or flow.
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
 # HubSpot Portal Query Layer
@@ -31,6 +31,23 @@ Two failure modes cost more than any query error:
 2. **Designing onto an empty field.** A branch on a property that is 0%
    populated does not error. It routes everyone down the default path forever,
    and looks like the flow is working.
+
+---
+
+## Before anything: the portal guard
+
+The connector holds one HubSpot portal at a time, and a consultant works in
+several. Before the first query of every session and every scheduled run:
+
+1. Call `get_user_details` and read the portal ID.
+2. Compare it with the portal ID in the current Project's instructions.
+3. If they differ, if the Project names no portal, or if the connector is not
+   connected: **stop.** Say which portal is connected and which was expected.
+   Do not query, do not draft from portal data, do not fall back to whatever
+   portal happens to be connected.
+
+A correct query against the wrong client's portal is the most damaging error
+this Skill can make, because every number it returns looks right.
 
 ---
 
@@ -66,6 +83,30 @@ when you first use a property in a design.
 Do not guess table or property API names from their labels in the UI. Confirm
 them. If a query returns zero rows, the first hypothesis is a wrong property
 name, not an empty portal.
+
+### What the connector can and cannot do
+
+Check the live tool list each session. These limits come from HubSpot's
+documentation and, for reports, from use as of September 2026.
+
+| Can | Cannot |
+| --- | --- |
+| Read most CRM objects, marketing emails, engagements and invoices | Build or edit workflows, sequences or campaigns |
+| Create and update contacts, companies, deals, tickets and engagements | Delete anything |
+| Work in batches of up to 10 records | Write invoices, payments, orders, carts or subscriptions (read-only) |
+| List and fetch existing reports | Build reports or dashboards |
+| | Read engagements when HubSpot's Sensitive Data setting is on |
+| | Read Sensitive Data properties |
+
+Anything in the right-hand column is done in the HubSpot UI (Protocol 6) or
+handed to the consultant. Never promise a client something the connector cannot do.
+
+### Write policy
+
+Default to read-only. Writes happen only when the consultant asks for a specific change,
+with the connector set to ask before every update. During a Revenue Audit, the
+create and update tools are turned off and nothing is written at all,
+including saved lists and views.
 
 ---
 
@@ -120,6 +161,7 @@ a number safe to hand to a client.
 | Label | Means |
 |---|---|
 | **LIVE PULL** | Queried this session. Include the date. |
+| **RECORD** | Taken from a document the client supplied, such as a finance export. Name the document. |
 | **ESTIMATE** | Derived, modeled, or extrapolated. State the method in the same breath. |
 | **UNKNOWN** | Not established. Say what would establish it and what it costs to find out. |
 
@@ -154,6 +196,63 @@ failure invalidates an entire flow design.
 | Flow suppresses on account status | Suppression is keyed on the transaction object, not on deals or stage | Rebuild the suppression key first |
 | Flow addresses accounts | Invoices are associated to companies at a high rate | Orphaned transactions cannot be attributed, suppressed, or re-engaged |
 | Segment counts distinct accounts | Company records are deduplicated | Duplicates fragment history and inflate account counts |
+
+---
+
+## Protocol 5 — Test for silent failures
+
+The query tools fail quietly. A filter they cannot apply is dropped without an
+error, and the result looks plausible. Run these before reporting any count:
+
+| Test | How | What a failure looks like |
+| --- | --- | --- |
+| Impossible range | Rerun the query with a date range that cannot contain records (for example, a future year) | The count does not change: the filter is being ignored |
+| Total check | Compare the result with the object's total record count | A "filtered" result equal or close to the total |
+| Round-number check | Look at the count before using it | Suspiciously round, or identical across different filters |
+| Cross-object filter | Filtering one object by a property of an associated object | Often ignored. Query from the transaction side instead: group invoices by company rather than filtering companies by invoice |
+| Sort on grouped queries | `ORDER BY` on grouped, cross-object queries | Ignored. Sort the returned rows yourself |
+| Null statuses | Records with an empty status field | A string match misses them; filter with `IS NULL` |
+
+**List counts:** the list builder's preview estimate can differ from the saved
+list by several times. Trust a list count only after the list is saved and has
+finished processing, and never save a list during a read-only audit; use a
+query count instead.
+
+Add every new silent failure found on a client to this table, without the
+client's name or figures.
+
+---
+
+## Protocol 6 — Work the connector can't do: the browser
+
+Workflow inventories, report and dashboard building, list creation and portal
+settings happen in the HubSpot UI through the browser.
+
+1. **Check the portal ID in the URL** before any click that changes something,
+   and again after switching tabs.
+2. **The consultant signs in and stays.** Claude never types a password or a two-factor
+   code. Claude changes a client portal through the browser only in a live
+   session with the consultant present, pausing for their OK before every save, publish or
+   activation; never in an unattended or scheduled run. Connector approvals do
+   not cover the browser.
+3. **Read before clicking.** Prefer reading the page's text and structure to
+   guessing from a screenshot.
+4. **Build switched off.** New workflows are saved inactive. The consultant activates
+   after counts reconcile.
+5. **Record for the handover.** A short screen recording of each finished build
+   becomes training material and part of the runbook.
+
+What the UI has taught so far:
+
+- Drag-and-drop fields in the report builder respond to slow, stepped mouse
+  movements, not a single fast drag.
+- Insert properties into formula fields through the property picker; typed
+  property references fail.
+- Some report types cannot be built from scratch. Check for a template or an
+  existing report to copy before spending time on a blank one.
+- Rollup properties on date fields may be unavailable on a given tier; a
+  workflow that copies the date onto the associated record is the usual
+  workaround. Confirm in the portal before designing around either.
 
 ---
 

@@ -20,7 +20,7 @@ I'm Kyle Olmstead. I started in sales (President's Club at Smartsheet, the large
 | Time with Claude since April 2026 | About 300 hours | Estimate; 175 of it measured from my account export |
 | Conversations, April to July | 280 | Measured |
 | Tool actions Claude ran for me, April to July | About 1,250 | Measured |
-| Custom Skills written and used | 11 | Counted |
+| Custom Skills used on the engagement | 11, plus 2 built since for the next client | Counted |
 | Client engagement run on it | 222 hours, 5.0 rating | Verified by Upwork |
 
 What I used: Projects, custom Skills, memory, connectors (HubSpot, Gmail, Google Drive, Slack, Stripe), Claude in Chrome for screens with no API, scheduled tasks that ran overnight, artifacts, and Claude Code.
@@ -34,6 +34,8 @@ Lifecycle marketing is keeping and growing customers through software. Customer 
 | Drive adoption and change management | [Adoption playbook](playbook/adoption-playbook.md), phases 1 to 5, including train-the-trainer and a small center of excellence |
 | Spot underuse and expansion in usage data | [Usage signals](playbook/usage-signals.md) and [`expansion-and-cross-sell`](skills/expansion-and-cross-sell/SKILL.md) |
 | Prove value in a way finance believes | [`incrementality-and-holdouts`](skills/incrementality-and-holdouts/SKILL.md) and the [evidence ledger](case-study/evidence-ledger.md) |
+| Run a value assessment an executive reads | [`hubspot-revenue-audit`](skills/hubspot-revenue-audit/SKILL.md) |
+| Onboard an account, and close one out cleanly | [`client-engagement-ops`](skills/client-engagement-ops/SKILL.md) |
 | Run success plans and business reviews | [`lifecycle-operating-rhythm`](skills/lifecycle-operating-rhythm/SKILL.md) and the [Friday recap](templates/weekly-recap.md) |
 | Learn a customer's industry fast | [`cre-domain-context`](skills/cre-domain-context/SKILL.md), the pattern for any vertical |
 | Earn trust with executives | The [case study's](case-study/running-a-consultancy-on-claude.md) review rules, and the client's 5.0 review |
@@ -44,7 +46,7 @@ Lifecycle marketing is keeping and growing customers through software. Customer 
 ```text
 case-study/   The engagement: setup, rules, failures, and an evidence ledger
 playbook/     Rolling Claude out to a team; reading usage for expansion and risk
-skills/       Ten Skills I used in production, plus a voice-Skill template
+skills/       Ten Skills used in production, two built since, and a voice-Skill template
 templates/    Project instructions, reliability register, overnight sweep, Friday recap
 docs/         How I prompt now, with real before-and-after examples
 scripts/      Checks every Skill and packages it as an upload-ready zip
